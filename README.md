@@ -4,7 +4,7 @@ Aplikasi monitoring bencana Indonesia berbasis data realtime resmi **BMKG**
 (Badan Meteorologi, Klimatologi, dan Geofisika) untuk gempa bumi, dan
 **MAGMA Indonesia (PVMBG–Badan Geologi, Kementerian ESDM)** untuk aktivitas
 gunung api.
-
+ 
 > **Sumber data: BMKG** — `https://data.bmkg.go.id/DataMKG/TEWS/`
 > (`autogempa.json`, `gempaterkini.json`, `gempadirasakan.json`).
 > **Sumber data: MAGMA** — `https://magma.esdm.go.id/v1/gunung-api/tingkat-aktivitas`
