@@ -213,8 +213,8 @@ export default function DashboardPage() {
           </span>
         </Link>
       )}
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
-        <div className="xl:col-span-2">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[1440px]:grid-cols-3">
+        <div className="min-[1440px]:col-span-2">
           {loading ? (
             <div className="skeleton h-[76px] rounded-xl" aria-hidden="true" />
           ) : latest ? (
@@ -272,10 +272,10 @@ export default function DashboardPage() {
         )}
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
-        <section aria-label="Peta sebaran gempa" className="min-w-0 xl:col-span-2">
+      <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[1440px]:grid-cols-3">
+        <section aria-label="Peta sebaran gempa" className="min-w-0 min-[1440px]:col-span-2">
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card">
-            <div className="h-[52vh] min-h-[320px] sm:h-[56vh] xl:h-[62vh]">
+            <div className="h-[48vh] min-h-[300px] sm:h-[54vh] min-[1440px]:h-[62vh]">
               <MapView
                 quakes={quakes}
                 selectedId={selected?.id}
@@ -376,8 +376,8 @@ export default function DashboardPage() {
         </section>
 
         <section aria-label="Daftar gempa terbaru" className="min-w-0">
-          <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card xl:sticky xl:top-[68px]">
-            <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/60 px-4 py-3">
+          <div className="min-w-0 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card min-[1440px]:sticky min-[1440px]:top-24 min-[1440px]:flex min-[1440px]:max-h-[calc(100dvh-7.5rem)] min-[1440px]:flex-col">
+            <div className="flex shrink-0 items-center justify-between border-b border-slate-100 bg-slate-50/60 px-4 py-3">
               <h2 className="text-sm font-bold text-slate-900">Gempa Terbaru</h2>
               {hasNew && (
                 <button
@@ -390,7 +390,7 @@ export default function DashboardPage() {
                 </button>
               )}
             </div>
-            <ul className="thin-scroll max-h-[50vh] space-y-2 overflow-y-auto p-3 sm:max-h-[60vh] xl:max-h-[calc(62vh-57px)]">
+            <ul className="thin-scroll dm-quake-scroll space-y-2 p-3 min-[1440px]:min-h-0 min-[1440px]:flex-1 min-[1440px]:overflow-y-auto">
               {loading && list.length === 0 && <SkeletonList rows={5} />}
               {list.map((q) => (
                 <QuakeListItem

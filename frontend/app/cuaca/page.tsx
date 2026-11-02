@@ -18,6 +18,7 @@ import { useHealth } from '@/components/StatusBar';
 import { EmptyState, ErrorState, LoadingRow, SkeletonList } from '@/components/States';
 import WatchButton from '@/components/WatchButton';
 import { IconCloud } from '@/components/icons';
+import { Pagination } from '@/components/Pagination';
 
 function slotTime(s: { local_datetime?: string; datetime?: string }): string {
   const raw = s.local_datetime ?? s.datetime ?? '';
@@ -57,6 +58,8 @@ export default function CuacaPage() {
   const [fcError, setFcError] = useState(false);
   const [activeDay, setActiveDay] = useState(0);
   const [alerts, setAlerts] = useState<WeatherAlert[] | null>(null);
+  const [alertPage, setAlertPage] = useState(1);
+  const [locationPage, setLocationPage] = useState(1);
   const { health, error: healthError } = useHealth();
   const socketConnected = useSocketConnected();
   const debounce = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -84,6 +87,11 @@ export default function CuacaPage() {
       .catch(() => setAlerts(null));
   }, [loadLocations]);
 
+  // Pindah kembali ke halaman pertama saat kata kunci berubah.
+  useEffect(() => {
+    setLocationPage(1);
+  }, [query]);
+
   // Debounce pencarian 400ms.
   useEffect(() => {
     if (debounce.current) clearTimeout(debounce.current);
@@ -110,6 +118,15 @@ export default function CuacaPage() {
   }, []);
 
   const day = forecast?.days[activeDay] ?? null;
+  const alertPageSize = 5;
+  const locationPageSize = 8;
+  const allAlerts = alerts ?? [];
+  const alertPages = Math.max(1, Math.ceil(allAlerts.length / alertPageSize));
+  const locationPages = Math.max(1, Math.ceil(locations.length / locationPageSize));
+  const currentAlertPage = Math.min(alertPage, alertPages);
+  const currentLocationPage = Math.min(locationPage, locationPages);
+  const visibleAlerts = allAlerts.slice((currentAlertPage - 1) * alertPageSize, currentAlertPage * alertPageSize);
+  const visibleLocations = locations.slice((currentLocationPage - 1) * locationPageSize, currentLocationPage * locationPageSize);
 
   return (
     <AppShell
@@ -133,7 +150,7 @@ export default function CuacaPage() {
               </h2>
             </div>
             <ul className="divide-y divide-red-100">
-              {alerts.map((a) => (
+              {visibleAlerts.map((a) => (
                 <li key={a.id} className="flex flex-wrap items-center gap-2 px-4 py-2.5">
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-bold text-white ${severityDot(a.severity)}`}
@@ -162,6 +179,16 @@ export default function CuacaPage() {
                 </li>
               ))}
             </ul>
+            <div className="border-t border-red-100 p-3">
+              <Pagination
+                page={currentAlertPage}
+                totalPages={alertPages}
+                totalItems={allAlerts.length}
+                pageSize={alertPageSize}
+                itemLabel="peringatan"
+                onPageChange={setAlertPage}
+              />
+            </div>
           </div>
         </section>
       )}
@@ -185,7 +212,7 @@ export default function CuacaPage() {
             <SkeletonList rows={3} />
           ) : locations.length > 0 ? (
             <ul className="grid grid-cols-1 gap-2 sm:grid-cols-2" aria-label="Hasil lokasi">
-              {locations.slice(0, 8).map((l) => (
+              {visibleLocations.map((l) => (
                 <li key={l.adm4}>
                   <button
                     type="button"
@@ -216,6 +243,18 @@ export default function CuacaPage() {
               title="Lokasi tidak ditemukan"
               message="Coba kata kunci lain, misalnya nama kecamatan atau kabupaten."
             />
+          )}
+          {!locLoading && !locError && locations.length > 0 && (
+            <div className="mt-3">
+              <Pagination
+                page={currentLocationPage}
+                totalPages={locationPages}
+                totalItems={locations.length}
+                pageSize={locationPageSize}
+                itemLabel="lokasi"
+                onPageChange={setLocationPage}
+              />
+            </div>
           )}
         </div>
       </section>

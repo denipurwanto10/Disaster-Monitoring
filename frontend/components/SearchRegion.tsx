@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { searchRegions, type RegionResult } from '@/lib/api';
-import { IconSearch } from './icons';
+import { IconPin, IconSearch } from './icons';
 
 export default function SearchRegion({
   onSelect,
@@ -16,6 +16,7 @@ export default function SearchRegion({
   const [highlight, setHighlight] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const boxRef = useRef<HTMLDivElement>(null);
+  const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
     if (timer.current) clearTimeout(timer.current);
@@ -57,6 +58,11 @@ export default function SearchRegion({
     };
   }, []);
 
+  // jaga item yang disorot tetap terlihat saat navigasi keyboard
+  useEffect(() => {
+    listRef.current?.querySelector<HTMLElement>(`[data-i="${highlight}"]`)?.scrollIntoView({ block: 'nearest' });
+  }, [highlight]);
+
   const pick = (r: RegionResult) => {
     onSelect(r);
     setOpen(false);
@@ -64,11 +70,11 @@ export default function SearchRegion({
   };
 
   return (
-    <div ref={boxRef} className="relative w-full sm:max-w-[220px] lg:max-w-xs">
+    <div ref={boxRef} className="relative w-full sm:w-60 lg:w-80">
       <label htmlFor="cari-wilayah" className="sr-only">
         Cari wilayah Indonesia
       </label>
-      <IconSearch className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <IconSearch className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[color:var(--ink-4)] " />
       <input
         id="cari-wilayah"
         type="search"
@@ -94,36 +100,46 @@ export default function SearchRegion({
         aria-expanded={open}
         aria-controls="hasil-wilayah"
         aria-autocomplete="list"
-        className="w-full rounded-lg border border-slate-200 bg-slate-50 py-2 pl-8 pr-3 text-sm text-slate-800 shadow-inner outline-none transition-all placeholder:text-slate-400 focus:border-red-700 focus:bg-white focus:ring-2 focus:ring-red-700/15"
+        aria-activedescendant={open && results.length > 0 ? `wilayah-${highlight}` : undefined}
+        className="peer h-10 w-full rounded-[var(--r-md)] border border-[color:var(--line)] bg-[color:var(--surface)] pl-9 pr-3 text-sm text-[color:var(--ink)] outline-none transition-[border-color,box-shadow,background-color] duration-300 placeholder:text-[color:var(--ink-4)] hover:border-[color:var(--ink-4)] focus:border-[color:var(--teal)] focus:bg-white focus:shadow-[0_0_0_4px_color-mix(in_srgb,var(--teal)_14%,transparent)] [&::-webkit-search-cancel-button]:hidden"
       />
+      {loading && (
+        <span className="dm-spinner pointer-events-none absolute right-3 top-1/2 -mt-2" aria-hidden="true" />
+      )}
       {open && (
         <ul
+          ref={listRef}
           id="hasil-wilayah"
-          className="absolute z-50 mt-1.5 max-h-64 w-full overflow-y-auto rounded-xl border border-slate-200 bg-white py-1 shadow-pop"
+          className="dm-pop dm-float thin-scroll absolute z-50 mt-2 max-h-72 w-full min-w-[15rem] overflow-y-auto p-1.5"
+          data-state="open"
           role="listbox"
           aria-label="Hasil pencarian wilayah"
         >
-          {loading && <li className="px-3 py-2.5 text-sm text-slate-500">Mencari…</li>}
+          {loading && <li className="px-3 py-2.5 text-sm text-[color:var(--ink-3)]">Mencari…</li>}
           {!loading && results.length === 0 && (
-            <li className="px-3 py-2.5 text-sm text-slate-500">Wilayah tidak ditemukan.</li>
+            <li className="px-3 py-2.5 text-sm text-[color:var(--ink-3)]">Wilayah tidak ditemukan.</li>
           )}
           {results.map((r, i) => (
-            <li key={`${r.name}-${i}`} role="option" aria-selected={i === highlight}>
+            <li key={`${r.name}-${i}`} id={`wilayah-${i}`} data-i={i} role="option" aria-selected={i === highlight}>
               <button
                 type="button"
                 onMouseEnter={() => setHighlight(i)}
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => pick(r)}
-                className={`flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm transition-colors ${
-                  i === highlight ? 'bg-red-50' : ''
-                } hover:bg-slate-50`}
+                className={`flex w-full items-center gap-3 rounded-lg px-2.5 py-2 text-left text-sm transition-colors duration-150 ${
+                  i === highlight ? 'bg-[color:var(--teal-soft)]' : ''
+                }`}
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-100 text-[11px] font-bold text-slate-600">
-                  {r.name.slice(0, 2).toUpperCase()}
+                <span
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-colors duration-150 ${
+                    i === highlight ? 'bg-white text-[color:var(--teal)]' : 'bg-[color:var(--surface-2)] text-[color:var(--ink-3)]'
+                  }`}
+                >
+                  <IconPin className="h-4 w-4" />
                 </span>
                 <span className="min-w-0">
-                  <span className="block truncate font-semibold text-slate-800">{r.name}</span>
-                  {r.province && <span className="block truncate text-xs text-slate-500">{r.province}</span>}
+                  <span className="block truncate font-semibold text-[color:var(--ink)]">{r.name}</span>
+                  {r.province && <span className="block truncate text-xs text-[color:var(--ink-3)]">{r.province}</span>}
                 </span>
               </button>
             </li>

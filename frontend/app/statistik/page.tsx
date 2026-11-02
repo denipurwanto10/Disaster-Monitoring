@@ -77,7 +77,7 @@ export default function StatistikPage() {
             ))}
           </div>
 
-          <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-2">
             <section className="rounded-xl border border-slate-200 bg-white p-4 shadow-card sm:p-5" aria-label="Distribusi magnitudo">
               <h2 className="text-sm font-bold text-slate-900">Distribusi magnitudo</h2>
               <p className="mb-3 text-xs text-slate-500">Seluruh data tercatat</p>

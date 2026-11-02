@@ -57,9 +57,9 @@ export default function VolcanoDetailPage({ params }: { params: { slug: string }
       }
     >
       {loading && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5" aria-hidden="true">
-          <div className="skeleton h-72 rounded-xl lg:col-span-3" />
-          <div className="skeleton h-72 rounded-xl lg:col-span-2" />
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[1360px]:grid-cols-5" aria-hidden="true">
+          <div className="skeleton h-72 rounded-xl min-[1360px]:col-span-3" />
+          <div className="skeleton h-72 rounded-xl min-[1360px]:col-span-2" />
         </div>
       )}
       {error && (
@@ -70,9 +70,9 @@ export default function VolcanoDetailPage({ params }: { params: { slug: string }
         />
       )}
       {volcano && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[1360px]:grid-cols-5">
           <section
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card lg:col-span-3"
+            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card min-[1360px]:col-span-3"
             aria-label="Informasi gunung api"
           >
             <div className="flex items-center gap-4 bg-slate-900 px-4 py-4 text-white sm:px-5">
@@ -158,9 +158,9 @@ export default function VolcanoDetailPage({ params }: { params: { slug: string }
 
           <section
             aria-label="Peta lokasi gunung api"
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card lg:col-span-2"
+            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card min-[1360px]:col-span-2"
           >
-            <div className="h-[300px] sm:h-[360px] lg:h-full lg:min-h-[440px]">
+            <div className="h-[300px] sm:h-[360px] min-[1360px]:h-full min-[1360px]:min-h-[440px]">
               {volcano.latitude != null && volcano.longitude != null ? (
                 <MapView
                   quakes={[]}

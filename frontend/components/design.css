@@ -1,0 +1,981 @@
+/* ==========================================================================
+   Disaster Monitoring — design layer
+   Impor sekali di app/layout.tsx:  import '@/components/design.css';
+   (setelah globals.css / direktif Tailwind)
+
+   Prinsip: UI dibuat monokrom-mineral. Warna hanya dipakai untuk satu hal:
+   tingkat keparahan (magnitudo, level gunung api, peringatan tsunami).
+   ========================================================================== */
+
+:root {
+  /* permukaan */
+  --bg: #f2f4f1;
+  --surface: #ffffff;
+  --surface-2: #f7f8f6;
+  --line: #e3e8e2;
+  --line-2: #edf0eb;
+
+  /* tinta */
+  --ink: #18231f;
+  --ink-2: #46534e;
+  --ink-3: #718079;
+  --ink-4: #a1aaa5;
+
+  /* basalt — sidebar */
+  --basalt: #15211e;
+  --basalt-2: #202e2a;
+  --basalt-line: rgb(255 255 255 / 0.08);
+  --basalt-ink: #dfe7e3;
+  --basalt-ink-2: #94a39d;
+
+  /* aksen interaksi (tautan, fokus) */
+  --teal: #276a61;
+  --teal-soft: #e9f1ee;
+  --ember: #ca6547; /* hanya penanda aktif pada sidebar */
+
+  /* keparahan */
+  --danger: #b42318;
+  --danger-soft: #fbece9;
+  --danger-line: #efc4be;
+  --ok: #2c7a58;
+
+  --map-bg: #e5e3df;
+
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-soft: cubic-bezier(0.4, 0, 0.2, 1);
+
+  --shadow-float:
+    0 1px 2px rgb(21 33 30 / 0.06), 0 8px 24px -6px rgb(21 33 30 / 0.16),
+    0 24px 48px -16px rgb(21 33 30 / 0.14);
+  --shadow-lift: 0 1px 2px rgb(21 33 30 / 0.05), 0 6px 16px -8px rgb(21 33 30 / 0.18);
+}
+
+html {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  -webkit-text-size-adjust: 100%;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-feature-settings: 'ss01', 'cv11';
+  letter-spacing: -0.003em;
+}
+::selection {
+  background: color-mix(in srgb, var(--teal) 22%, white);
+}
+:where(a, button, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+  border-radius: var(--r-sm);
+}
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- kompatibilitas nama kelas lama ---------------------------------- */
+.shadow-card {
+  box-shadow: 0 1px 0 rgb(21 33 30 / 0.03);
+}
+.shadow-pop {
+  box-shadow: var(--shadow-float);
+}
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.pb-safe-content {
+  padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+}
+.pb-safe-nav {
+  padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px));
+}
+@media (min-width: 1280px) {
+  .pb-safe-content { padding-bottom: 0; }
+}
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+  overscroll-behavior: contain;
+}
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 8px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+}
+
+/* ---- header mengambang ------------------------------------------------ */
+.dm-topbar {
+  position: sticky;
+  top: 0.75rem;
+  isolation: isolate;
+  overflow: visible;
+  background: var(--surface);
+  border-color: color-mix(in srgb, var(--line) 88%, white);
+  box-shadow: none;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  transition:
+    border-color 0.2s var(--ease),
+    background-color 0.2s var(--ease);
+}
+.dm-topbar > div {
+  min-height: 4.5rem;
+}
+@media (max-width: 639px) {
+  .dm-topbar {
+    top: 0.5rem;
+    border-radius: 16px;
+  }
+  .dm-topbar > div {
+    min-height: 3.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-topbar {
+    transition: none;
+  }
+}
+
+/* ---- permukaan ------------------------------------------------------- */
+.dm-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+}
+.dm-card-i {
+  transition:
+    border-color 0.25s var(--ease),
+    box-shadow 0.35s var(--ease),
+    background-color 0.25s var(--ease),
+    transform 0.35s var(--ease);
+}
+.dm-card-i:hover {
+  border-color: var(--ink-4);
+  box-shadow: var(--shadow-lift);
+}
+.dm-card-i[data-selected='true'] {
+  border-color: var(--ink);
+  box-shadow: 0 0 0 1px var(--ink);
+  background: #fff;
+}
+.dm-press {
+  transition: transform 0.2s var(--ease);
+}
+.dm-press:active {
+  transform: scale(0.985);
+}
+.dm-float {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-float);
+}
+/* kaca buram — hanya untuk elemen yang tidak bersarang di backdrop-filter lain */
+.dm-glass {
+  background: var(--surface);
+  border: 1px solid var(--line);
+}
+
+/* ---- tombol ---------------------------------------------------------- */
+.dm-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  height: 2.25rem;
+  padding: 0 0.85rem;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  transition:
+    background-color 0.2s var(--ease),
+    border-color 0.2s var(--ease),
+    color 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.dm-btn:hover {
+  background: #fff;
+  border-color: var(--ink-4);
+  color: var(--ink);
+}
+.dm-btn:active {
+  transform: scale(0.97);
+}
+.dm-btn-solid {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: #fff;
+}
+.dm-btn-solid:hover {
+  background: var(--ink-2);
+  border-color: var(--ink-2);
+  color: #fff;
+}
+.dm-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.5rem;
+  margin: -0.3rem -0.5rem;
+  border-radius: var(--r-sm);
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--teal);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+.dm-link:hover {
+  background: var(--teal-soft);
+}
+.dm-link svg {
+  transition: transform 0.35s var(--ease);
+}
+.dm-link:hover svg,
+.group:hover .dm-link svg {
+  transform: translateX(3px);
+}
+
+/* ---- keterbacaan data ------------------------------------------------ */
+.dm-meta {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  font-size: 0.8125rem;
+  color: var(--ink-3);
+}
+.dm-meta > * + * {
+  position: relative;
+  margin-left: 0.7rem;
+  padding-left: 0.7rem;
+}
+.dm-meta > * + *::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 0.7em;
+  width: 1px;
+  transform: translateY(-50%);
+  background: var(--line);
+}
+
+/* ---- animasi --------------------------------------------------------- */
+@keyframes dm-page {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dm-rise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes dm-pop-in {
+  from {
+    opacity: 0;
+    transform: translateY(-6px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dm-pop-out {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-4px) scale(0.98);
+  }
+}
+@keyframes dm-grow {
+  from {
+    transform: scaleY(0);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+@keyframes dm-live {
+  0% {
+    transform: scale(1);
+    opacity: 0.55;
+  }
+  80%,
+  100% {
+    transform: scale(2.6);
+    opacity: 0;
+  }
+}
+@keyframes dm-breathe {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+@keyframes dm-star {
+  0% {
+    transform: scale(0.6) rotate(-20deg);
+  }
+  60% {
+    transform: scale(1.25) rotate(6deg);
+  }
+  100% {
+    transform: none;
+  }
+}
+@keyframes dm-draw {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes dm-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+@keyframes dm-shimmer {
+  to {
+    background-position: -200% 0;
+  }
+}
+@keyframes dm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.dm-page {
+  position: relative;
+  z-index: 0;
+  min-width: 0;
+  animation: dm-page 0.38s var(--ease) both;
+}
+/* masuk berurutan — dipakai pada daftar; --i diisi komponen (maks 10) */
+.dm-enter {
+  animation: dm-rise 0.42s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+/* jeda otomatis berdasarkan urutan anak — tak perlu prop */
+.dm-enter:nth-child(2){--i:1}
+.dm-enter:nth-child(3){--i:2}
+.dm-enter:nth-child(4){--i:3}
+.dm-enter:nth-child(5){--i:4}
+.dm-enter:nth-child(6){--i:5}
+.dm-enter:nth-child(7){--i:6}
+.dm-enter:nth-child(8){--i:7}
+.dm-enter:nth-child(9){--i:8}
+.dm-enter:nth-child(10){--i:9}
+.dm-enter:nth-child(11){--i:10}
+.dm-fade {
+  animation: dm-fade 0.32s var(--ease) both;
+}
+.dm-pop[data-state='open'] {
+  animation: dm-pop-in 0.28s var(--ease) both;
+  transform-origin: top right;
+}
+.dm-pop[data-state='closed'] {
+  animation: dm-pop-out 0.16s var(--ease-soft) both;
+  transform-origin: top right;
+  pointer-events: none;
+}
+.dm-scrim[data-state='open'] {
+  animation: dm-fade 0.25s var(--ease) both;
+}
+.dm-scrim[data-state='closed'] {
+  opacity: 0;
+  transition: opacity 0.16s;
+  pointer-events: none;
+}
+.dm-bar {
+  transition: width 1s var(--ease);
+}
+.dm-col {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: dm-grow 0.8s var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 22ms);
+  transition: opacity 0.25s var(--ease);
+}
+.dm-star-on {
+  animation: dm-star 0.45s var(--ease) both;
+}
+.dm-live-dot::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: inherit;
+  animation: dm-live 2.4s var(--ease-soft) infinite;
+}
+.dm-breathe {
+  animation: dm-breathe 2.2s ease-in-out infinite;
+}
+.dm-trace {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: dm-draw 1.4s 0.15s var(--ease) forwards;
+}
+.dm-spinner {
+  width: 1rem;
+  height: 1rem;
+  border-radius: 9999px;
+  border: 2px solid var(--line);
+  border-top-color: var(--teal);
+  animation: dm-spin 0.8s linear infinite;
+}
+.skeleton {
+  border-radius: var(--r-sm);
+  background: linear-gradient(90deg, var(--line-2) 25%, #f6f8f4 45%, var(--line-2) 65%);
+  background-size: 200% 100%;
+  animation: dm-shimmer 1.6s linear infinite;
+}
+
+/* penanda di peta */
+.dm-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dm-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+  pointer-events: none;
+}
+.dm-user-dot {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  border-radius: 9999px;
+  background: #2f6fed;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 6px rgb(21 33 30 / 0.4);
+}
+.dm-user-dot::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  background: #2f6fed;
+  animation: dm-live 2.6s var(--ease-soft) infinite;
+  z-index: -1;
+}
+.dm-vol {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  transform: translateZ(0);
+  transition: transform 0.2s var(--ease);
+}
+.dm-vol svg {
+  display: block;
+  overflow: visible;
+}
+.dm-vol:hover {
+  transform: translateY(-1px) scale(1.06);
+}
+.dm-vol.is-selected {
+  transform: scale(1.1);
+}
+.dm-vol.is-selected::before {
+  content: '';
+  position: absolute;
+  inset: 1px -2px;
+  border: 1.5px solid var(--vol-color);
+  border-radius: 999px;
+  opacity: 0.48;
+  pointer-events: none;
+}
+.leaflet-div-icon.dm-vol-icon-shell {
+  background: transparent !important;
+  border: 0 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-vol,
+  .dm-vol svg {
+    transition: none;
+  }
+}
+.dm-quake-icon-shell {
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 0;
+}
+.dm-quake-marker {
+  --quake-color: #c66a27;
+  --quake-size: 34px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: var(--quake-size);
+  height: var(--quake-size);
+  border: 2px solid rgb(255 255 255 / 0.96);
+  border-radius: 9999px;
+  background: var(--quake-color);
+  color: #fff;
+  box-shadow:
+    0 0 0 1px rgb(18 32 28 / 0.16),
+    0 3px 10px rgb(18 32 28 / 0.28),
+    inset 0 1px 0 rgb(255 255 255 / 0.3);
+  transform: translateZ(0);
+  transition: transform 0.24s var(--ease), box-shadow 0.24s var(--ease);
+}
+.dm-quake-marker::before,
+.dm-quake-marker::after {
+  content: '';
+  position: absolute;
+  inset: -5px;
+  border: 1px solid color-mix(in srgb, var(--quake-color) 58%, white);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.dm-quake-marker::before {
+  inset: 3px;
+  border: 0;
+  background: linear-gradient(145deg, rgb(255 255 255 / 0.24), transparent 58%);
+}
+.dm-quake-marker__label {
+  position: relative;
+  z-index: 1;
+  font-size: 10px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.035em;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 2px rgb(0 0 0 / 0.22);
+}
+.dm-quake-marker[data-major='true']::after {
+  animation: dm-quake-pulse 2.8s var(--ease-soft) infinite;
+}
+.dm-quake-marker.is-selected {
+  z-index: 2;
+  transform: scale(1.12);
+  box-shadow:
+    0 0 0 3px rgb(255 255 255 / 0.86),
+    0 0 0 5px color-mix(in srgb, var(--quake-color) 70%, transparent),
+    0 5px 16px rgb(18 32 28 / 0.34);
+}
+@keyframes dm-quake-pulse {
+  0% { transform: scale(0.88); opacity: 0.8; }
+  75%, 100% { transform: scale(1.48); opacity: 0; }
+}
+
+/* ---- tabel adaptif: mengikuti lebar panel, bukan viewport ------------- */
+.dm-table-wrap {
+  width: 100%;
+  min-width: 0;
+  container-type: inline-size;
+  container-name: responsive-table;
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+}
+.dm-table {
+  width: 100%;
+  min-width: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+  font-size: 0.875rem;
+}
+.dm-table thead th {
+  padding: 0.78rem 0.9rem;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--line);
+  font-size: 0.75rem;
+  font-weight: 650;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+.dm-table tbody td {
+  padding: 0.78rem 0.9rem;
+  border-bottom: 1px solid var(--line-2);
+  vertical-align: middle;
+}
+.dm-table tbody tr {
+  transition: background-color 0.2s var(--ease);
+}
+.dm-table tbody tr:hover {
+  background: color-mix(in srgb, var(--teal-soft) 55%, transparent);
+}
+.dm-table tbody tr:last-child td {
+  border-bottom: 0;
+}
+.dm-table .c-coord {
+  display: none;
+}
+.dm-table.q {
+  table-layout: fixed;
+}
+.dm-table.q .c-time { width: 208px; }
+.dm-table.q .c-mag { width: 72px; }
+.dm-table.q .c-depth { width: 100px; }
+.dm-table.q .c-coord { width: 132px; }
+.dm-table.q .c-tsu { width: 132px; }
+.dm-table.q .c-det { width: 76px; }
+.dm-table.q .c-loc { min-width: 170px; }
+.dm-table.v {
+  table-layout: auto;
+}
+.dm-table.v .c-det { width: 76px; }
+.dm-table.v .c-elev { width: 100px; }
+.dm-table.v .c-upd { width: 150px; }
+.dm-table .c-hide-md {
+  display: table-cell;
+}
+@container responsive-table (min-width: 1160px) {
+  .dm-table .c-coord {
+    display: table-cell;
+  }
+}
+
+/* Ketika panel sempit, dua jenis tabel berubah menjadi kartu data.
+   Container query juga mengatasi dashboard dua-kolom pada tablet/desktop kecil. */
+@container responsive-table (max-width: 760px) {
+  .dm-table thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  .dm-table,
+  .dm-table tbody {
+    display: block;
+    width: 100%;
+  }
+  .dm-table tbody tr {
+    display: grid;
+    min-width: 0;
+    column-gap: 0.85rem;
+    row-gap: 0.28rem;
+    align-items: center;
+    padding: 0.9rem 1rem;
+    border-bottom: 1px solid var(--line-2);
+  }
+  .dm-table tbody tr:last-child {
+    border-bottom: 0;
+  }
+  .dm-table tbody td {
+    display: block;
+    min-width: 0;
+    padding: 0;
+    border: 0;
+  }
+  .dm-table .c-hide-md {
+    display: block;
+  }
+  .dm-table.q tbody tr {
+    grid-template-columns: 3.25rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      'mag loc loc'
+      'mag time depth'
+      'mag tsu det';
+  }
+  .dm-table.q .c-mag { grid-area: mag; align-self: start; }
+  .dm-table.q .c-loc {
+    grid-area: loc;
+    min-width: 0;
+    max-width: none;
+    overflow-wrap: anywhere;
+    white-space: normal !important;
+    font-weight: 650;
+  }
+  .dm-table.q .c-time {
+    grid-area: time;
+    min-width: 0;
+    white-space: normal !important;
+    font-size: 0.8rem;
+    line-height: 1.4;
+    color: var(--ink-3);
+    font-variant-numeric: tabular-nums;
+  }
+  .dm-table.q .c-depth {
+    grid-area: depth;
+    justify-self: end;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+  .dm-table.q .c-tsu { grid-area: tsu; margin-top: 0.25rem; }
+  .dm-table.q .c-det { grid-area: det; justify-self: end; margin-top: 0.25rem; }
+  .dm-table.v tbody tr {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      'name det'
+      'prov elev'
+      'lvl lvl';
+  }
+  .dm-table.v .c-name {
+    grid-area: name;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    white-space: normal;
+  }
+  .dm-table.v .c-prov {
+    grid-area: prov;
+    min-width: 0;
+    max-width: none !important;
+    overflow-wrap: anywhere;
+    white-space: normal;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+  .dm-table.v .c-elev {
+    grid-area: elev;
+    justify-self: end;
+    font-size: 0.8rem;
+    color: var(--ink-3);
+  }
+  .dm-table.v .c-lvl { grid-area: lvl; margin-top: 0.35rem; }
+  .dm-table.v .c-det { grid-area: det; justify-self: end; }
+  .dm-table.v .c-upd { display: none; }
+}
+
+/* Fallback lebar layar kecil untuk browser tanpa container queries. */
+@media (max-width: 760px) {
+  .dm-table-wrap .dm-table-min { min-width: 0; }
+}
+
+/* ---- Leaflet --------------------------------------------------------- */
+.leaflet-container {
+  background: var(--map-bg);
+  font-family: inherit;
+  outline: 0;
+}
+.leaflet-fade-anim .leaflet-popup {
+  transition: opacity 0.25s var(--ease);
+}
+.leaflet-popup-content-wrapper {
+  padding: 0;
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-float);
+  border: 1px solid var(--line);
+}
+.leaflet-popup-content {
+  margin: 0.85rem 1rem;
+  line-height: 1.4;
+  color: var(--ink);
+}
+.leaflet-popup-tip {
+  background: var(--surface);
+  box-shadow: none;
+  border: 1px solid var(--line);
+}
+.leaflet-container a.leaflet-popup-close-button {
+  top: 6px;
+  right: 6px;
+  width: 24px;
+  height: 24px;
+  font: 18px/22px inherit;
+  border-radius: var(--r-sm);
+  color: var(--ink-3);
+  transition: background-color 0.2s;
+}
+.leaflet-container a.leaflet-popup-close-button:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+.leaflet-bar {
+  border: 1px solid var(--line) !important;
+  border-radius: var(--r-md) !important;
+  box-shadow: var(--shadow-lift) !important;
+  overflow: hidden;
+  background: var(--surface);
+}
+.leaflet-bar a,
+.leaflet-bar a:hover {
+  width: 40px;
+  height: 40px;
+  line-height: 40px;
+  font-size: 20px;
+  font-weight: 500;
+  background: var(--surface);
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--line-2);
+  transition: background-color 0.2s;
+}
+.leaflet-bar a:hover {
+  background: #fff;
+  color: var(--ink);
+}
+.leaflet-bar a:last-child {
+  border-bottom: 0;
+}
+.leaflet-control-attribution {
+  background: color-mix(in srgb, var(--surface) 80%, transparent) !important;
+  color: var(--ink-3);
+  font-size: 10px;
+  border-top-left-radius: var(--r-sm);
+  backdrop-filter: blur(6px);
+}
+.leaflet-control-attribution a {
+  color: var(--ink-2);
+}
+
+/* ---- aksesibilitas gerak --------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    animation-delay: 0ms !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+
+/* ---- layout guards for narrow screens -------------------------------- */
+.dm-page > *,
+.dm-page section,
+.dm-page article,
+.dm-page form {
+  min-width: 0;
+}
+.dm-page .leaflet-container,
+.dm-page [data-testid='map-container'] {
+  position: relative;
+  z-index: 0;
+}
+@media (max-width: 639px) {
+  .dm-page {
+    padding-inline: 0.875rem;
+  }
+  .dm-table-wrap {
+    overflow-x: clip;
+  }
+  .leaflet-control-attribution {
+    max-width: calc(100% - 3.5rem);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .leaflet-popup-content {
+    max-width: min(250px, calc(100vw - 5rem));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dm-quake-marker[data-major='true']::after {
+    animation: none;
+  }
+}
+
+/* Pagination — konsisten dengan surface dashboard, nyaman disentuh di mobile. */
+.dm-pagination-number {
+  min-width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.55rem;
+  font-size: 0.75rem;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease), transform 0.2s var(--ease);
+}
+.dm-pagination-number:active {
+  transform: scale(0.96);
+}
+
+@media (max-width: 390px) {
+  .dm-pagination-number {
+    min-width: 2rem;
+    height: 2rem;
+  }
+}
+.leaflet-div-icon.dm-quake-icon-shell {
+  background: transparent !important;
+  border: 0 !important;
+}
+
+
+/* ---- daftar gempa terbaru: scroll yang tidak terpotong -----------------
+   Pada desktop lebar, header panel berada di bawah floating page header.
+   Hanya isi daftar yang dapat di-scroll. Pada tablet/mobile daftar mengikuti
+   alur halaman normal agar tidak menciptakan nested scrolling. */
+.dm-quake-scroll {
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: #c8d2cc transparent;
+  overscroll-behavior-y: contain;
+}
+.dm-quake-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+.dm-quake-scroll::-webkit-scrollbar-thumb {
+  background: #c8d2cc;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+.dm-quake-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+@media (min-width: 1440px) {
+  .dm-quake-scroll {
+    scroll-padding-block: 0.75rem;
+    scroll-snap-type: y proximity;
+  }
+  .dm-quake-scroll > li {
+    scroll-snap-align: start;
+    scroll-margin-block: 0.75rem;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .dm-quake-scroll {
+    scroll-behavior: auto;
+    scroll-snap-type: none;
+  }
+}

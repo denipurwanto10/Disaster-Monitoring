@@ -1,18 +1,19 @@
 'use client';
 
 import { IconAlert, IconInfo } from './icons';
+import { stagger } from './ui';
 
 export function EmptyState({ title, message }: { title: string; message: string }) {
   return (
     <div
-      className="flex flex-col items-center rounded-xl border border-dashed border-slate-300 bg-white px-6 py-10 text-center"
+      className="dm-fade flex flex-col items-center rounded-[var(--r-md)] border border-dashed border-[color:var(--ink-4)]/60 px-6 py-12 text-center"
       role="status"
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-400">
-        <IconInfo className="h-6 w-6" />
+      <span className="flex h-10 w-10 items-center justify-center rounded-full bg-[color:var(--surface)] text-[color:var(--ink-3)] ring-1 ring-inset ring-[color:var(--line)]">
+        <IconInfo className="h-5 w-5" />
       </span>
-      <p className="mt-3 text-sm font-semibold text-slate-800">{title}</p>
-      <p className="mt-1 max-w-sm text-sm text-slate-500">{message}</p>
+      <p className="mt-4 text-[15px] font-semibold text-[color:var(--ink)]">{title}</p>
+      <p className="mt-1 max-w-sm text-sm leading-relaxed text-[color:var(--ink-3)]">{message}</p>
     </div>
   );
 }
@@ -28,20 +29,17 @@ export function ErrorState({
 }) {
   return (
     <div
-      className="flex flex-col items-center rounded-xl border border-red-200 bg-red-50 px-6 py-8 text-center"
+      className="dm-fade relative flex flex-col items-start gap-1 overflow-hidden rounded-[var(--r-md)] border border-[color:var(--danger-line)] bg-[color:var(--danger-soft)] py-5 pl-6 pr-5 sm:flex-row sm:items-center sm:gap-4"
       role="alert"
     >
-      <span className="flex h-11 w-11 items-center justify-center rounded-full bg-red-100 text-red-700">
-        <IconAlert className="h-6 w-6" />
-      </span>
-      <p className="mt-3 text-sm font-semibold text-red-900">{title}</p>
-      <p className="mt-1 max-w-md text-sm text-red-800/80">{message}</p>
+      <span className="absolute inset-y-0 left-0 w-1 bg-[color:var(--danger)]" aria-hidden="true" />
+      <IconAlert className="h-5 w-5 shrink-0 text-[color:var(--danger)]" />
+      <div className="min-w-0 flex-1">
+        <p className="text-[15px] font-semibold text-[color:var(--ink)]">{title}</p>
+        <p className="mt-0.5 max-w-prose text-sm leading-relaxed text-[color:var(--ink-2)]">{message}</p>
+      </div>
       {onRetry && (
-        <button
-          type="button"
-          onClick={onRetry}
-          className="mt-4 rounded-lg bg-red-700 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-red-800 active:bg-red-900"
-        >
+        <button type="button" onClick={onRetry} className="dm-btn dm-btn-solid mt-3 sm:mt-0">
           Coba lagi
         </button>
       )}
@@ -52,14 +50,11 @@ export function ErrorState({
 export function LoadingRow({ label = 'Memuat data…' }: { label?: string }) {
   return (
     <div
-      className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 text-sm text-slate-500"
+      className="dm-card dm-fade flex items-center gap-3 p-4 text-sm text-[color:var(--ink-3)]"
       role="status"
       aria-live="polite"
     >
-      <span
-        className="h-4 w-4 shrink-0 animate-spin rounded-full border-2 border-slate-300 border-t-red-700"
-        aria-hidden="true"
-      />
+      <span className="dm-spinner shrink-0" aria-hidden="true" />
       {label}
     </div>
   );
@@ -68,15 +63,19 @@ export function LoadingRow({ label = 'Memuat data…' }: { label?: string }) {
 /** Skeleton baris daftar — dipakai saat first load agar layout tidak melompat. */
 export function SkeletonList({ rows = 5 }: { rows?: number }) {
   return (
-    <ul className="space-y-2" aria-hidden="true">
+    <ul className="space-y-2.5" aria-hidden="true">
       {Array.from({ length: rows }).map((_, i) => (
-        <li key={i} className="rounded-xl border border-slate-200 bg-white p-3">
-          <div className="flex items-center gap-3">
-            <div className="skeleton h-10 w-14 shrink-0" />
-            <div className="min-w-0 flex-1 space-y-2">
-              <div className="skeleton h-3.5 w-3/4" />
+        <li key={i} className="dm-card dm-enter p-3.5" style={stagger(i)}>
+          <div className="flex items-center gap-3.5">
+            <div className="skeleton h-[52px] w-[52px] shrink-0 !rounded-[11px]" />
+            <div className="min-w-0 flex-1 space-y-2.5">
+              <div className="skeleton h-4 w-3/4" />
               <div className="skeleton h-3 w-1/2" />
             </div>
+          </div>
+          <div className="mt-3.5 flex items-center justify-between border-t border-[color:var(--line-2)] pt-3">
+            <div className="skeleton h-3 w-14" />
+            <div className="skeleton h-3 w-12" />
           </div>
         </li>
       ))}
@@ -87,11 +86,11 @@ export function SkeletonList({ rows = 5 }: { rows?: number }) {
 /** Skeleton kartu statistik. */
 export function SkeletonStats() {
   return (
-    <div className="grid grid-cols-2 gap-2.5 md:grid-cols-4" aria-hidden="true">
+    <div className="grid grid-cols-2 gap-3 md:grid-cols-4" aria-hidden="true">
       {Array.from({ length: 4 }).map((_, i) => (
-        <div key={i} className="rounded-xl border border-slate-200 bg-white p-3.5">
+        <div key={i} className="dm-card dm-enter p-4" style={stagger(i)}>
           <div className="skeleton h-3 w-16" />
-          <div className="skeleton mt-2 h-7 w-20" />
+          <div className="skeleton mt-3 h-8 w-20" />
         </div>
       ))}
     </div>

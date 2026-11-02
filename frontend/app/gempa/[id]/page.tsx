@@ -76,9 +76,9 @@ export default function QuakeDetailPage({ params }: { params: { id: string } }) 
         />
       )}
       {quake && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 min-[1360px]:grid-cols-5">
           <section
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card lg:col-span-3"
+            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card min-[1360px]:col-span-3"
             aria-label="Informasi gempa"
           >
             {/* Banner magnitudo */}
@@ -177,9 +177,9 @@ export default function QuakeDetailPage({ params }: { params: { id: string } }) 
 
           <section
             aria-label="Peta lokasi gempa"
-            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card lg:col-span-2"
+            className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-card min-[1360px]:col-span-2"
           >
-            <div className="h-[300px] sm:h-[360px] lg:h-full lg:min-h-[480px]">
+            <div className="h-[300px] sm:h-[360px] min-[1360px]:h-full min-[1360px]:min-h-[480px]">
               <MapView
                 quakes={[quake]}
                 selectedId={quake.id}
@@ -189,7 +189,7 @@ export default function QuakeDetailPage({ params }: { params: { id: string } }) 
             </div>
           </section>
 
-          <div className="lg:col-span-5">
+          <div className="min-[1360px]:col-span-5">
             <div className="flex flex-wrap items-center gap-2">
               <WatchButton
                 kind="quake"

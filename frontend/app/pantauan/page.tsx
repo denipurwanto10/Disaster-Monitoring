@@ -146,7 +146,7 @@ export default function PantauanPage() {
       )}
 
       {loaded && items.length > 0 && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 md:grid-cols-2 min-[1440px]:grid-cols-3">
           {GROUPS.map((g) => {
             const list = items.filter((w) => w.kind === g.kind);
             if (list.length === 0) return null;

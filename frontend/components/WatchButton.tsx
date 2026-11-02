@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from 'react';
 import { addWatch, isWatched, removeWatch, type WatchKind } from '@/lib/watchlist';
+import { IconStar } from './icons';
 
 export default function WatchButton({
   kind,
@@ -45,14 +46,17 @@ export default function WatchButton({
       aria-pressed={watched}
       aria-label={watched ? `Berhenti memantau ${label}` : `Pantau ${label}`}
       title={watched ? 'Berhenti memantau' : 'Pantau lokasi ini'}
-      className={`inline-flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-semibold shadow-card transition-colors ${
-        watched
-          ? 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100'
-          : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+      className={`dm-btn ${
+        watched ? '!border-[#e3c98f] !bg-[#fbf3de] !text-[#7a5410] hover:!bg-[#f8ecca]' : ''
       }`}
     >
-      <span aria-hidden="true" className={watched ? 'text-amber-500' : 'text-slate-400'}>
-        {watched ? '★' : '☆'}
+      {/* key memicu animasi pop setiap status berubah */}
+      <span
+        key={String(watched)}
+        className={`inline-flex ${watched ? 'dm-star-on text-[#c98a14]' : 'text-[color:var(--ink-4)]'}`}
+        aria-hidden="true"
+      >
+        <IconStar filled={watched} className="h-4 w-4" />
       </span>
       {watched ? 'Dipantau' : 'Pantau'}
     </button>

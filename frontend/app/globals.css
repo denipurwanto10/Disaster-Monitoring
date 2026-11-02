@@ -5,44 +5,182 @@
 
 :root {
   color-scheme: light;
+  --app-canvas: #f6f7f8;
+  --app-surface: #ffffff;
+  --app-ink: #17212b;
+  --app-muted: #718096;
+  --app-line: #e7ebef;
+  --app-accent: #b42332;
+  --app-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --app-shadow: 0 1px 2px rgb(16 24 40 / 0.035), 0 5px 18px rgb(16 24 40 / 0.035);
+  --app-shadow-hover: 0 3px 8px rgb(16 24 40 / 0.055), 0 12px 28px rgb(16 24 40 / 0.06);
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 5rem;
+  background: var(--app-canvas);
 }
 
 body {
+  min-width: 320px;
+  color: var(--app-ink);
   font-feature-settings: 'cv02', 'cv03', 'cv04', 'tnum';
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   -webkit-tap-highlight-color: transparent;
+  background: var(--app-canvas);
+}
+
+::selection {
+  color: #7f1d1d;
+  background: #fee2e2;
 }
 
 :focus-visible {
-  outline: 2px solid #b91c1c;
-  outline-offset: 2px;
-  border-radius: 4px;
+  outline: 2px solid var(--app-accent);
+  outline-offset: 3px;
+  border-radius: 5px;
 }
 
-/* ---------- Leaflet: selaraskan dengan bahasa desain aplikasi ---------- */
+/* ---------- Shared surfaces ---------- */
+.rounded-xl {
+  border-radius: 0.95rem;
+}
+
+.shadow-card {
+  box-shadow: var(--app-shadow);
+  transition:
+    box-shadow 220ms var(--app-ease),
+    border-color 220ms ease,
+    background-color 220ms ease,
+    transform 220ms var(--app-ease);
+}
+
+.shadow-pop {
+  box-shadow: var(--app-shadow-hover);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  a.shadow-card:hover,
+  button.shadow-card:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--app-shadow-hover);
+  }
+}
+
+/* ---------- Inputs and controls ---------- */
+input,
+select,
+textarea,
+button {
+  font: inherit;
+}
+
+input:not([type='checkbox']):not([type='radio']),
+select,
+textarea {
+  max-width: 100%;
+  transition:
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    background-color 180ms ease;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #9aa5b1;
+  opacity: 1;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease,
+    transform 180ms var(--app-ease);
+}
+
+button:not(:disabled):active {
+  transform: translateY(1px) scale(0.985);
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
+a {
+  text-underline-offset: 3px;
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+/* ---------- Page entrance: subtle, short, and consistent ---------- */
+@keyframes page-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 9px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes content-enter {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 6px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+/* Route entrance motion is defined once in components/design.css. */
+
+/* Small feedback on selectable rows and tabs without making the UI jump. */
+[role='tab'],
+[role='option'],
+[aria-pressed='true'] {
+  transition:
+    color 180ms ease,
+    background-color 180ms ease,
+    border-color 180ms ease,
+    box-shadow 180ms ease;
+}
+
+/* ---------- Leaflet ---------- */
 .leaflet-container {
   font-family: inherit;
-  background: #e2e8f0;
+  background: #edf1f3;
   outline: none;
 }
 
 .leaflet-container .leaflet-control-zoom {
-  border: 1px solid #e2e8f0 !important;
-  border-radius: 10px !important;
   overflow: hidden;
-  box-shadow: 0 1px 2px 0 rgb(15 23 42 / 0.06) !important;
+  border: 1px solid #e1e7eb !important;
+  border-radius: 10px !important;
+  box-shadow: 0 2px 8px rgb(16 24 40 / 0.09) !important;
 }
 
 .leaflet-container .leaflet-control-zoom a {
+  width: 34px !important;
+  height: 34px !important;
   border: none !important;
-  color: #334155 !important;
-  width: 32px !important;
-  height: 32px !important;
-  line-height: 32px !important;
+  color: #344054 !important;
+  line-height: 34px !important;
 }
 
 .leaflet-container .leaflet-control-zoom a:hover {
-  background: #f8fafc !important;
+  background: #f8fafb !important;
 }
 
 .leaflet-popup-content-wrapper {
@@ -55,10 +193,11 @@ body {
   line-height: 1.5 !important;
 }
 
-/* ---------- Scrollbar tipis untuk panel ---------- */
+/* ---------- Scrollbar ---------- */
 .thin-scroll {
   scrollbar-width: thin;
   scrollbar-color: #cbd5e1 transparent;
+  overscroll-behavior: contain;
 }
 
 .thin-scroll::-webkit-scrollbar {
@@ -77,28 +216,67 @@ body {
 
 /* ---------- Skeleton loading ---------- */
 @keyframes skeleton-shimmer {
-  0% {
-    background-position: -400px 0;
-  }
-  100% {
-    background-position: 400px 0;
-  }
+  0% { background-position: -400px 0; }
+  100% { background-position: 400px 0; }
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+  border-radius: 8px;
+  background: linear-gradient(90deg, #e8edf0 25%, #f4f6f7 50%, #e8edf0 75%);
   background-size: 800px 100%;
-  animation: skeleton-shimmer 1.4s ease infinite;
-  border-radius: 6px;
+  animation: skeleton-shimmer 1.5s ease-in-out infinite;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .skeleton {
-    animation: none;
+/* ---------- Mobile / touch refinements ---------- */
+main,
+main > *,
+main section,
+main article {
+  min-width: 0;
+  max-width: 100%;
+}
+
+main img,
+main video,
+main canvas {
+  max-width: 100%;
+}
+
+@media (max-width: 639px) {
+  html {
+    scroll-padding-top: 4rem;
+  }
+
+  main {
+    width: 100%;
+  }
+
+  /* Keep map panels useful on small screens without consuming the viewport. */
+  main .leaflet-container {
+    min-height: 280px;
+  }
+
+  .leaflet-control-attribution {
+    font-size: 9px !important;
   }
 }
 
-/* ---------- Safe area untuk navigasi bawah mobile ---------- */
+/* Safe area for mobile navigation / bottom actions. */
 .pb-safe {
   padding-bottom: env(safe-area-inset-bottom);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .skeleton {
+    animation: none;
+  }
 }

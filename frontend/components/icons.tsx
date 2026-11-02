@@ -8,7 +8,7 @@ function base(props: IconProps, path: React.ReactNode) {
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"
-      strokeWidth={2}
+      strokeWidth={1.75}
       strokeLinecap="round"
       strokeLinejoin="round"
       className={props.className ?? 'h-5 w-5'}
@@ -154,5 +154,73 @@ export function IconWave(p: IconProps) {
       <path d="M2 9c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2" />
       <path d="M2 15c2.5 0 2.5 2 5 2s2.5-2 5-2 2.5 2 5 2 2.5-2 5-2" />
     </>,
+  );
+}
+
+export function IconStar({ filled, ...p }: IconProps & { filled?: boolean }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill={filled ? 'currentColor' : 'none'}
+      stroke="currentColor"
+      strokeWidth={1.75}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={p.className ?? 'h-5 w-5'}
+      aria-hidden="true"
+    >
+      <path d="m12 3.2 2.6 5.5 6 .8-4.4 4.1 1.1 6-5.3-2.9-5.3 2.9 1.1-6L3.4 9.5l6-.8L12 3.2Z" />
+    </svg>
+  );
+}
+
+export function IconPin(p: IconProps) {
+  return base(
+    p,
+    <>
+      <path d="M12 21s7-6.1 7-11.5A7 7 0 0 0 5 9.5C5 14.9 12 21 12 21Z" />
+      <circle cx="12" cy="9.5" r="2.5" />
+    </>,
+  );
+}
+
+/** Simbol gunung api ringkas dengan sudut lembut untuk elemen UI kecil. */
+export function IconTriangle(p: IconProps) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      stroke="currentColor"
+      strokeWidth={1.4}
+      strokeLinejoin="round"
+      className={p.className ?? 'h-4 w-4'}
+      aria-hidden="true"
+    >
+      <path d="M11.1 5.2c.4-.7 1.4-.7 1.8 0l8 13.7c.4.7-.1 1.5-.9 1.5H4c-.8 0-1.3-.8-.9-1.5l8-13.7Z" />
+    </svg>
+  );
+}
+
+/** Miniatur marker gunung api yang konsisten dengan ikon pada peta. */
+export function VolcanoMark({ color, className }: IconProps & { color: string }) {
+  return (
+    <svg viewBox="0 0 40 44" className={className ?? 'h-6 w-6'} aria-hidden="true">
+      <path
+        d="M20 3.5c1.2 0 2.3.7 2.9 1.8l14.1 24.9c1.3 2.4-.4 5.2-3.1 5.2H6.1c-2.7 0-4.4-2.8-3.1-5.2L17.1 5.3c.6-1.1 1.7-1.8 2.9-1.8Z"
+        fill={color}
+        stroke="white"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      <path
+        d="m12.6 25.3 4.7-8.1 2.8 4 2.2-2.8 5.1 6.9H12.6Z"
+        fill="none"
+        stroke="white"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path d="M14.7 28.4h10.6" fill="none" stroke="white" strokeWidth="1.7" strokeLinecap="round" opacity=".9" />
+    </svg>
   );
 }

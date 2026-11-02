@@ -8,6 +8,7 @@ import { AppShell } from '@/components/AppShell';
 import { useHealth } from '@/components/StatusBar';
 import { EmptyState, ErrorState } from '@/components/States';
 import { QuakeTable } from '@/components/QuakeList';
+import { Pagination } from '@/components/Pagination';
 import { IconChevronDown, IconFilter } from '@/components/icons';
 
 function useSyncedFilters() {
@@ -301,27 +302,14 @@ function HistoryInner() {
             {meta.totalPages || 1}
           </p>
           <QuakeTable quakes={quakes} />
-          <nav aria-label="Navigasi halaman" className="flex items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5 shadow-card sm:justify-start sm:gap-3">
-            <button
-              type="button"
-              disabled={page <= 1}
-              onClick={() => set({ ...filters, page: String(page - 1) })}
-              className="rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              ← Sebelumnya
-            </button>
-            <span className="text-sm tabular-nums text-slate-600" aria-live="polite">
-              {page} / {meta.totalPages || 1}
-            </span>
-            <button
-              type="button"
-              disabled={meta.totalPages > 0 && page >= meta.totalPages}
-              onClick={() => set({ ...filters, page: String(page + 1) })}
-              className="rounded-lg border border-slate-200 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
-            >
-              Berikutnya →
-            </button>
-          </nav>
+          <Pagination
+            page={page}
+            totalPages={meta.totalPages || 1}
+            totalItems={meta.total}
+            pageSize={meta.limit || 20}
+            itemLabel="gempa"
+            onPageChange={(nextPage) => set({ ...filters, page: String(nextPage) })}
+          />
         </>
       ) : (
         !error && (

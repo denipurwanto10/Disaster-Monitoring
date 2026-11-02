@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import './globals.css';
+import '../components/design.css';
 
 export const metadata: Metadata = {
   title: 'Disaster Monitoring Indonesia — Pantauan Gempa BMKG',
@@ -10,13 +11,13 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0f172a',
+  themeColor: '#f2f4f1',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="id">
-      <body className="bg-slate-100 text-slate-900 antialiased">{children}</body>
+      <body className="antialiased">{children}</body>
     </html>
   );
 }

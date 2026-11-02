@@ -46,9 +46,9 @@ export function connState(health: Health | null, fetchError: boolean, socketConn
 }
 
 const DOT: Record<ConnState, string> = {
-  realtime: 'bg-emerald-500',
-  stale: 'bg-amber-400',
-  down: 'bg-red-500',
+  realtime: 'bg-[#3fb27f]',
+  stale: 'bg-[#d9a23b]',
+  down: 'bg-[#e05a47]',
 };
 
 export default function StatusBar({
@@ -56,11 +56,14 @@ export default function StatusBar({
   fetchError,
   socketConnected,
   dark = false,
+  compact = false,
 }: {
   health: Health | null;
   fetchError: boolean;
   socketConnected: boolean;
   dark?: boolean;
+  /** hanya titik status (untuk sidebar yang diciutkan) */
+  compact?: boolean;
 }) {
   const state = connState(health, fetchError, socketConnected);
   const text =
@@ -75,20 +78,24 @@ export default function StatusBar({
 
   return (
     <span
-      className={`inline-flex max-w-full items-center gap-2 rounded-full py-1 pl-2.5 pr-3 text-xs font-medium ${
-        dark ? 'bg-white/10 text-slate-100' : 'border border-slate-200 bg-slate-50 text-slate-700'
+      className={`inline-flex max-w-full items-center rounded-full text-xs font-medium transition-colors duration-500 ${
+        compact ? 'h-9 w-9 justify-center' : 'gap-2.5 py-1.5 pl-3 pr-3.5'
+      } ${
+        dark
+          ? 'bg-white/[0.06] text-[color:var(--basalt-ink)] ring-1 ring-inset ring-white/10'
+          : 'border border-[color:var(--line)] bg-[color:var(--surface)] text-[color:var(--ink-2)]'
       }`}
       title={title}
       role="status"
       aria-label={`Status koneksi: ${text}`}
     >
-      <span className="relative flex h-2 w-2 shrink-0" aria-hidden="true">
-        {state === 'realtime' && (
-          <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${DOT[state]}`} />
-        )}
-        <span className={`relative inline-flex h-2 w-2 rounded-full ${DOT[state]}`} />
-      </span>
-      <span className="truncate">{text}</span>
+      <span
+        className={`relative h-2 w-2 shrink-0 rounded-full transition-colors duration-500 ${DOT[state]} ${
+          state === 'realtime' ? 'dm-live-dot' : ''
+        }`}
+        aria-hidden="true"
+      />
+      {!compact && <span className="truncate">{text}</span>}
     </span>
   );
 }

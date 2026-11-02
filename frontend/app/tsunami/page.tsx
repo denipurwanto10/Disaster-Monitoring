@@ -8,6 +8,7 @@ import { AppShell } from '@/components/AppShell';
 import { useHealth } from '@/components/StatusBar';
 import { EmptyState, ErrorState, SkeletonList } from '@/components/States';
 import { TsunamiCard } from '@/components/TsunamiCard';
+import { Pagination } from '@/components/Pagination';
 
 const HISTORY_LIMIT = 30;
 
@@ -17,6 +18,8 @@ export default function TsunamiPage() {
   const [meta, setMeta] = useState<TsunamiMeta | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [warningPage, setWarningPage] = useState(1);
+  const [historyPage, setHistoryPage] = useState(1);
   const { health, error: healthError } = useHealth();
   const socketConnected = useSocketConnected();
 
@@ -46,7 +49,15 @@ export default function TsunamiPage() {
     load();
   }, [load]);
 
+  const pageSize = 5;
+  const allWarnings = warnings ?? [];
   const historyShown = (history ?? []).slice(0, HISTORY_LIMIT);
+  const warningPages = Math.max(1, Math.ceil(allWarnings.length / pageSize));
+  const historyPages = Math.max(1, Math.ceil(historyShown.length / pageSize));
+  const currentWarningPage = Math.min(warningPage, warningPages);
+  const currentHistoryPage = Math.min(historyPage, historyPages);
+  const visibleWarnings = allWarnings.slice((currentWarningPage - 1) * pageSize, currentWarningPage * pageSize);
+  const visibleHistory = historyShown.slice((currentHistoryPage - 1) * pageSize, currentHistoryPage * pageSize);
 
   return (
     <AppShell
@@ -83,7 +94,7 @@ export default function TsunamiPage() {
       )}
 
       {!loading && !error && (
-        <div className="grid grid-cols-1 gap-3 sm:gap-4 lg:grid-cols-2">
+        <div className="grid grid-cols-1 gap-3 sm:gap-4 xl:grid-cols-2">
           {/* Peringatan aktif */}
           <section aria-label="Peringatan tsunami aktif">
             <div className="overflow-hidden rounded-xl border border-red-200 bg-red-50 shadow-card">
@@ -98,18 +109,21 @@ export default function TsunamiPage() {
               </div>
               <div className="space-y-2.5 p-3">
                 {warnings && warnings.length > 0 ? (
-                  warnings.slice(0, 10).map((e) => <TsunamiCard key={e.event_id} event={e} />)
+                  visibleWarnings.map((e) => <TsunamiCard key={e.event_id} event={e} />)
                 ) : (
                   <EmptyState
                     title="Tidak ada peringatan aktif"
                     message="Saat ini tidak ada peringatan tsunami aktif dari InaTEWS BMKG."
                   />
                 )}
-                {warnings && warnings.length > 10 && (
-                  <p className="px-1 text-xs text-slate-500">
-                    + {warnings.length - 10} buletin lain — lihat riwayat di bawah.
-                  </p>
-                )}
+                <Pagination
+                  page={currentWarningPage}
+                  totalPages={warningPages}
+                  totalItems={allWarnings.length}
+                  pageSize={pageSize}
+                  itemLabel="buletin"
+                  onPageChange={setWarningPage}
+                />
               </div>
             </div>
           </section>
@@ -123,13 +137,21 @@ export default function TsunamiPage() {
               </div>
               <div className="space-y-2.5 p-3">
                 {historyShown.length > 0 ? (
-                  historyShown.map((e) => <TsunamiCard key={e.event_id} event={e} />)
+                  visibleHistory.map((e) => <TsunamiCard key={e.event_id} event={e} />)
                 ) : (
                   <EmptyState
                     title="Belum ada riwayat"
                     message="Belum ada event tsunami tercatat dari InaTEWS BMKG."
                   />
                 )}
+                <Pagination
+                  page={currentHistoryPage}
+                  totalPages={historyPages}
+                  totalItems={historyShown.length}
+                  pageSize={pageSize}
+                  itemLabel="event"
+                  onPageChange={setHistoryPage}
+                />
               </div>
             </div>
           </section>
